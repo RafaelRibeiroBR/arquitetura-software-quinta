@@ -1,4 +1,5 @@
 package adapter;
 
-public class Database {
+public class DatabaseStorage{
+
 }

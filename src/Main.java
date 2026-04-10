@@ -2,6 +2,7 @@ import adapter.DatabaseStorage;
 import domain.EntityInterface;
 import domain.Product;
 import service.ProductService;
+import utils.GenerationValue;
 
 import javax.xml.transform.Source;
 import java.sql.SQLOutput;
@@ -9,10 +10,16 @@ import java.sql.SQLOutput;
 void main() {
     ProductService productService = new ProductService();
 
-    productService.create(new Product(productService.generateUUID(),
+
+    Product product = new Product(
+            GenerationValue.uuid(),
             "SKU" ,
             "nome",
-            new BigDecimal(2)));
+            2f);
+
+    product.setPrice(3f);
+
+    productService.create(product);
 
     productService.listAll();
 //    Product product1 = new Product("TSH-BLK-002-SM", "Celular", new BigDecimal(1000));

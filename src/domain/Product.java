@@ -78,11 +78,17 @@ public class Product implements EntityInterface {
     @Override
     public String toString() {
         return "Product{" +
+                "UUID+" + uuid.toString() + '\'' +
                 "sku='" + sku + '\'' +
                 ", name='" + name + '\'' +
                 ", price=" + price +
                 ", datePrice=" + datePrice +
                 ", historicalPrice=" + historicalPrice +
                 '}';
+    }
+
+    @Override
+    public UUID getUUID() {
+        return null;
     }
 }

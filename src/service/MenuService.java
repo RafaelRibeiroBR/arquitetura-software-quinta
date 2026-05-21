@@ -12,21 +12,21 @@ import java.util.Scanner;
 import java.util.stream.Collectors;
 
 /**
- * Serviço responsável por exibir e gerenciar o menu do sistema.
- * Sistema SIMPLIFICADO: usuário cadastra só o nome do produto e o crawler faz o resto.
+ * Servico responsavel por exibir e gerenciar o menu do sistema.
+ * Sistema SIMPLIFICADO: usuario cadastra so o nome do produto e o crawler faz o resto.
  */
 public class MenuService {
 
-    // Scanner para ler entrada do usuário
+    // Scanner para ler entrada do usuario
     private Scanner scanner;
 
-    // Repositório de produtos
+    // Repositorio de produtos
     private ProdutoRepository produtoRepository;
 
-    // Repositório de histórico
+    // Repositorio de historico
     private HistoricoRepository historicoRepository;
 
-    // Serviço de crawler
+    // Servico de crawler
     private CrawlerService crawlerService;
 
     // Flag para controlar o loop do menu
@@ -44,14 +44,14 @@ public class MenuService {
     }
 
     /**
-     * Exibe o menu principal e processa a entrada do usuário.
+     * Exibe o menu principal e processa a entrada do usuario.
      */
     public void exibirMenu() {
         while (executando) {
             exibirOpcoes();
             int opcao = lerOpcao();
 
-            // Processa a opção elegida usando switch-case
+            // Processa a opcao elegida usando switch-case
             switch (opcao) {
                 case 1:
                     cadastrarProduto();
@@ -65,11 +65,15 @@ public class MenuService {
                 case 4:
                     verHistorico();
                     break;
+                case 5:
+                    removerProduto();
+                    break;
                 case 0:
                     sair();
                     break;
                 default:
-                    System.out.println("Opção inválida! Digite um número entre 0 e 4.");
+                    System.out.println("Opcao invalida! Digite um numero entre 0 e 5.");
+                    break;
             }
 
             if (executando) {
@@ -79,42 +83,43 @@ public class MenuService {
     }
 
     /**
-     * Exibe as opções do menu principal.
+     * Exibe as opcoes do menu principal.
      */
     private void exibirOpcoes() {
         System.out.println();
-        System.out.println("╔═══════════════════════════════════════════╗");
-        System.out.println("║     CRAWLER DE PREÇOS DE PRODUTOS          ║");
-        System.out.println("║     (Busca Automática nas Lojas)          ║");
-        System.out.println("╠═══════════════════════════════════════════╣");
-        System.out.println("║  1 - Cadastrar produto                    ║");
-        System.out.println("║  2 - Listar produtos                      ║");
-        System.out.println("║  3 - Executar crawler                     ║");
-        System.out.println("║  4 - Ver histórico de preços              ║");
-        System.out.println("║  0 - Sair                                 ║");
-        System.out.println("╚═══════════════════════════════════════════╝");
+        System.out.println("+----------------------------------------------------+");
+        System.out.println("|     CRAWLER DE PRECOS DE PRODUTOS                   |");
+        System.out.println("|     (Busca Automatica nas Lojas)                   |");
+        System.out.println("+----------------------------------------------------+");
+        System.out.println("|  1 - Cadastrar produto                             |");
+        System.out.println("|  2 - Listar produtos                               |");
+        System.out.println("|  3 - Executar crawler                              |");
+        System.out.println("|  4 - Ver historico de precos                       |");
+        System.out.println("|  5 - Remover produto                               |");
+        System.out.println("|  0 - Sair                                          |");
+        System.out.println("+----------------------------------------------------+");
         System.out.println();
-        System.out.print("Escolha uma opção: ");
+        System.out.print("Escolha uma opcao: ");
     }
 
     /**
-     * Lê a opção escolhida pelo usuário.
-     * @return Opção numérica
+     * Le a opcao escolhida pelo usuario.
+     * @return Opcao numerica
      */
     private int lerOpcao() {
         try {
             String entrada = scanner.nextLine();
             return Integer.parseInt(entrada.trim());
         } catch (NumberFormatException e) {
-            return -1; // Opção inválida
+            return -1; // Opcao invalida
         }
     }
 
-    // ==================== OPÇÕES DO MENU ====================
+    // ==================== OPCOES DO MENU ====================
 
     /**
-     * Opção 1: Cadastrar um novo produto.
-     * O usuário informa apenas o nome do produto.
+     * Opcao 1: Cadastrar um novo produto.
+     * O usuario informa apenas o nome do produto.
      */
     private void cadastrarProduto() {
         System.out.println("\n--- CADASTRO DE PRODUTO ---");
@@ -126,7 +131,7 @@ public class MenuService {
         String nome = scanner.nextLine().trim();
 
         if (nome.isEmpty()) {
-            System.out.println("Nome não pode ser vazio!");
+            System.out.println("Nome nao pode ser vazio!");
             return;
         }
 
@@ -138,17 +143,17 @@ public class MenuService {
         // Cria o novo produto (sem links - o crawler gera URLs automaticamente)
         Produto produto = new Produto(nome);
 
-        // Salva no repositório
+        // Salva no repositorio
         produtoRepository.adicionar(produto);
 
         System.out.println();
         System.out.println("Produto cadastrado com sucesso!");
-        System.out.println("O sistema irá buscar automaticamente em:");
+        System.out.println("O sistema ira buscar automaticamente em:");
         System.out.println("  - Amazon, Kabum, Mercado Livre, Magazine Luiza");
     }
 
     /**
-     * Opção 2: Listar todos os produtos cadastrados.
+     * Opcao 2: Listar todos os produtos cadastrados.
      */
     private void listarProdutos() {
         System.out.println("\n--- LISTA DE PRODUTOS ---");
@@ -171,20 +176,20 @@ public class MenuService {
     }
 
     /**
-     * Opção 3: Executar o crawler em todos os produtos.
+     * Opcao 3: Executar o crawler em todos os produtos.
      * Busca automaticamente em todas as lojas (sem precisar de links cadastrados).
      */
     private void executarCrawler() {
         System.out.println();
 
-        // Verifica se há produtos cadastrados
+        // Verifica se ha produtos cadastrados
         if (produtoRepository.estaVazio()) {
             System.out.println("Nenhum produto cadastrado!");
-            System.out.println("Cadastre um produto primeiro (opção 1).");
+            System.out.println("Cadastre um produto primeiro (opcao 1).");
             return;
         }
 
-        System.out.println("=== EXECUTANDO CRAWLER AUTOMÁTICO ===");
+        System.out.println("=== EXECUTANDO CRAWLER AUTOMATICO ===");
         System.out.println("O sistema vai buscar automaticamente em:");
         System.out.println("  - Amazon");
         System.out.println("  - Kabum");
@@ -192,7 +197,7 @@ public class MenuService {
         System.out.println("  - Magazine Luiza");
         System.out.println();
 
-        // Recarrega os repositórios para garantir dados atualizados
+        // Recarrega os repositorios para garantir dados atualizados
         crawlerService = new CrawlerService();
 
         // Executa o crawler
@@ -200,36 +205,36 @@ public class MenuService {
     }
 
     /**
-     * Opção 4: Visualizar o histórico de preços.
+     * Opcao 4: Visualizar o historico de precos.
      */
     private void verHistorico() {
-        System.out.println("\n╔════════════════════════════════════════════════════════════════╗");
-        System.out.println("║           SISTEMA DE MONITORAMENTO DE PREÇOS                 ║");
-        System.out.println("║                    HISTÓRICO COMPLETO                        ║");
-        System.out.println("╚════════════════════════════════════════════════════════════════╝");
+        System.out.println("\n+--------------------------------------------------------+");
+        System.out.println("|           SISTEMA DE MONITORAMENTO DE PRECOS          |");
+        System.out.println("|                    HISTORICO COMPLETO                  |");
+        System.out.println("+--------------------------------------------------------+");
 
         List<HistoricoPreco> historico = historicoRepository.listarTodos();
 
         if (historico.isEmpty()) {
-            System.out.println("║                                                          ║");
-            System.out.println("║  Nenhum registro de histórico encontrado.                 ║");
-            System.out.println("║  Execute o crawler primeiro para gerar histórico.         ║");
-            System.out.println("╚════════════════════════════════════════════════════════════════╝");
+            System.out.println("|                                                        |");
+            System.out.println("|  Nenhum registro de historico encontrado.              |");
+            System.out.println("|  Execute o crawler primeiro para gerar historico.     |");
+            System.out.println("+--------------------------------------------------------+");
             return;
         }
 
-        System.out.println("║  Total de registros: " + historico.size());
-        System.out.println("║  Produtos únicos: " + historicoRepository.listarProdutosUnicos().size());
-        System.out.println("║  Lojas únicas: " + historicoRepository.listarLojasUnicas().size());
-        System.out.println("╠════════════════════════════════════════════════════════════════╣");
-        System.out.println("║  Como deseja visualizar o histórico?                        ║");
-        System.out.println("║  1 - Todos os registros (completo)                          ║");
-        System.out.println("║  2 - Por produto (com estatísticas)                         ║");
-        System.out.println("║  3 - Por loja (comparativo)                                 ║");
-        System.out.println("║  4 - Resumo geral (melhores preços)                         ║");
-        System.out.println("║  0 - Voltar ao menu principal                               ║");
-        System.out.println("╚════════════════════════════════════════════════════════════════╝");
-        System.out.print("Opção: ");
+        System.out.println("|  Total de registros: " + historico.size());
+        System.out.println("|  Produtos unicos: " + historicoRepository.listarProdutosUnicos().size());
+        System.out.println("|  Lojas unicas: " + historicoRepository.listarLojasUnicas().size());
+        System.out.println("+--------------------------------------------------------+");
+        System.out.println("|  Como deseja visualizar o historico?                    |");
+        System.out.println("|  1 - Todos os registros (completo)                      |");
+        System.out.println("|  2 - Por produto (com estatisticas)                     |");
+        System.out.println("|  3 - Por loja (comparativo)                             |");
+        System.out.println("|  4 - Resumo geral (melhores precos)                     |");
+        System.out.println("|  0 - Voltar ao menu principal                           |");
+        System.out.println("+--------------------------------------------------------+");
+        System.out.print("Opcao: ");
 
         int opcao = lerOpcao();
 
@@ -249,19 +254,19 @@ public class MenuService {
             case 0:
                 return;
             default:
-                System.out.println("Opção inválida!");
+                System.out.println("Opcao invalida!");
         }
     }
 
     /**
-     * Lista todos os registros de histórico com formatação profissional.
+     * Lista todos os registros de historico com formatacao profissional.
      */
     private void listarTodosRegistrosProfissional(List<HistoricoPreco> historico) {
-        System.out.println("\n┌─────────────────────────────────────────────────────────────────────────┐");
-        System.out.println("│                    HISTÓRICO COMPLETO DE PREÇOS                        │");
-        System.out.println("├──────────────────┼──────────────────┼────────────┬─────────────────────┤");
-        System.out.println("│ PRODUTO          │ LOJA             │ PREÇO     │ DATA/HORA           │");
-        System.out.println("├──────────────────┼──────────────────┼────────────┼─────────────────────┤");
+        System.out.println("\n+------------------------------------------------------------------+");
+        System.out.println("|                    HISTORICO COMPLETO DE PRECOS                  |");
+        System.out.println("+------------------+------------------+------------+-----------------+");
+        System.out.println("| PRODUTO          | LOJA             | PRECO     | DATA/HORA        |");
+        System.out.println("+------------------+------------------+------------+-----------------+");
 
         for (HistoricoPreco h : historico) {
             String produto = h.getNomeProduto();
@@ -269,70 +274,70 @@ public class MenuService {
             String loja = h.getLoja();
             if (loja.length() > 16) loja = loja.substring(0, 13) + "...";
 
-            System.out.printf("│ %-16s │ %-16s │ R$ %7.2f │ %-19s │%n",
+            System.out.printf("| %-16s | %-16s | R$ %7.2f | %-16s |%n",
                     produto, loja, h.getPreco(), h.getDataResumida());
         }
 
-        System.out.println("└──────────────────┴──────────────────┴────────────┴─────────────────────┘");
+        System.out.println("+------------------+------------------+------------+-----------------+");
     }
 
     /**
-     * Lista o histórico agrupado por produto com estatísticas.
+     * Lista o historico agrupado por produto com estatisticas.
      */
     private void listarPorProdutoAgrupado() {
         Map<String, List<HistoricoPreco>> porProduto = historicoRepository.agruparPorProduto();
 
-        System.out.println("\n┌─────────────────────────────────────────────────────────────────────────┐");
-        System.out.println("│                   HISTÓRICO POR PRODUTO                                │");
-        System.out.println("└─────────────────────────────────────────────────────────────────────────┘");
+        System.out.println("\n+------------------------------------------------------------------+");
+        System.out.println("|                   HISTORICO POR PRODUTO                          |");
+        System.out.println("+------------------------------------------------------------------+");
 
         for (Map.Entry<String, List<HistoricoPreco>> entry : porProduto.entrySet()) {
             String produto = entry.getKey();
             List<HistoricoPreco> registros = entry.getValue();
 
-            // Estatísticas
+            // Estatisticas
             HistoricoRepository.EstatisticaPreco estatisticas = historicoRepository.calcularEstatisticas(registros);
             HistoricoPreco menorHistorico = historicoRepository.getMenorPrecoHistorico(produto);
             HistoricoPreco maiorHistorico = historicoRepository.getMaiorPrecoHistorico(produto);
 
-            System.out.println("\n╔═══════════════════════════════════════════════════════════════════════╗");
-            System.out.println("║  PRODUTO: " + produto);
-            System.out.println("╠═══════════════════════════════════════════════════════════════════════╣");
-            System.out.println("║  Total de registros: " + registros.size());
-            System.out.printf("║  Menor preço histórico: R$ %.2f (%s)%n",
+            System.out.println("\n+======================================================================+");
+            System.out.println("|  PRODUTO: " + produto);
+            System.out.println("+======================================================================+");
+            System.out.println("|  Total de registros: " + registros.size());
+            System.out.printf("|  Menor preco historico: R$ %.2f (%s)%n",
                     menorHistorico.getPreco(), menorHistorico.getLoja());
-            System.out.printf("║  Maior preço histórico: R$ %.2f (%s)%n",
+            System.out.printf("|  Maior preco historico: R$ %.2f (%s)%n",
                     maiorHistorico.getPreco(), maiorHistorico.getLoja());
-            System.out.printf("║  Média de preços:      R$ %.2f%n", estatisticas.getMediaPreco());
-            System.out.println("╠═══════════════════════════════════════════════════════════════════════╣");
-            System.out.println("║  EVOLUÇÃO DE PREÇOS (do mais antigo para o mais recente)              ║");
-            System.out.println("╠═══════════════════════════════════════════════════════════════════════╣");
+            System.out.printf("|  Media de precos:      R$ %.2f%n", estatisticas.getMediaPreco());
+            System.out.println("+======================================================================+");
+            System.out.println("|  EVOLUCAO DE PRECOS (do mais antigo para o mais recente)           |");
+            System.out.println("+======================================================================+");
 
-            // Ordena por data e mostra evolução
+            // Ordena por data e mostra evolucao
             registros.stream()
                     .sorted(Comparator.comparing(HistoricoPreco::getData))
                     .forEach(h -> {
                         String jours = "";
                         if (h.getDiasDesdeRegistro() > 0) {
-                            jours = " (" + h.getDiasDesdeRegistro() + " dias atrás)";
+                            jours = " (" + h.getDiasDesdeRegistro() + " dias atras)";
                         }
-                        System.out.printf("║  %-15s │ R$ %8.2f │ %s%s%n",
+                        System.out.printf("|  %-15s | R$ %8.2f | %s%s%n",
                                 h.getLoja(), h.getPreco(), h.getDataResumida(), jours);
                     });
 
-            System.out.println("╚═══════════════════════════════════════════════════════════════════════╝");
+            System.out.println("+======================================================================+");
         }
     }
 
     /**
-     * Lista o histórico agrupado por loja com comparativos.
+     * Lista o historico agrupado por loja com comparativos.
      */
     private void listarPorLojaAgrupado() {
         Map<String, List<HistoricoPreco>> porLoja = historicoRepository.agruparPorLoja();
 
-        System.out.println("\n┌─────────────────────────────────────────────────────────────────────────┐");
-        System.out.println("│                      HISTÓRICO POR LOJA                                │");
-        System.out.println("└─────────────────────────────────────────────────────────────────────────┘");
+        System.out.println("\n+------------------------------------------------------------------+");
+        System.out.println("|                      HISTORICO POR LOJA                           |");
+        System.out.println("+------------------------------------------------------------------+");
 
         for (Map.Entry<String, List<HistoricoPreco>> entry : porLoja.entrySet()) {
             String loja = entry.getKey();
@@ -340,51 +345,51 @@ public class MenuService {
 
             HistoricoRepository.EstatisticaPreco estatisticas = historicoRepository.calcularEstatisticas(registros);
 
-            System.out.println("\n╔═══════════════════════════════════════════════════════════════════════╗");
-            System.out.printf("║  LOJA: %s", loja);
-            // Preenche com espaços
+            System.out.println("\n+======================================================================+");
+            System.out.printf("|  LOJA: %s", loja);
+            // Preenche com espacos
             for (int i = loja.length(); i < 66; i++) System.out.print(" ");
-            System.out.println("║");
-            System.out.println("╠═══════════════════════════════════════════════════════════════════════╣");
-            System.out.println("║  Produtos monitorados: " + registros.stream()
+            System.out.println("|");
+            System.out.println("+======================================================================+");
+            System.out.println("|  Produtos monitorados: " + registros.stream()
                     .map(HistoricoPreco::getNomeProduto)
                     .distinct()
                     .count());
-            System.out.println("║  Total de registros: " + registros.size());
-            System.out.printf("║  Menor preço praticado: R$ %.2f%n",
+            System.out.println("|  Total de registros: " + registros.size());
+            System.out.printf("|  Menor preco praticado: R$ %.2f%n",
                     estatisticas.getMenorPreco());
-            System.out.printf("║  Maior preço praticado: R$ %.2f%n",
+            System.out.printf("|  Maior preco praticado: R$ %.2f%n",
                     estatisticas.getMaiorPreco());
-            System.out.printf("║  Média de preços:       R$ %.2f%n",
+            System.out.printf("|  Media de precos:       R$ %.2f%n",
                     estatisticas.getMediaPreco());
-            System.out.println("╠═══════════════════════════════════════════════════════════════════════╣");
-            System.out.println("║  ÚLTIMOS REGISTROS                                                  ║");
-            System.out.println("╠═══════════════════════════════════════════════════════════════════════╣");
+            System.out.println("+======================================================================+");
+            System.out.println("|  ULTIMOS REGISTROS                                                 |");
+            System.out.println("+======================================================================+");
 
-            // Mostra últimos registros (máximo 10)
+            // Mostra ultimos registros (maximo 10)
             registros.stream()
                     .sorted(Comparator.comparing(HistoricoPreco::getData).reversed())
                     .limit(10)
                     .forEach(h -> {
-                        System.out.printf("║  %-20s │ R$ %8.2f │ %s%n",
+                        System.out.printf("|  %-20s | R$ %8.2f | %s%n",
                                 h.getNomeProduto(), h.getPreco(), h.getDataResumida());
                     });
 
-            System.out.println("╚═══════════════════════════════════════════════════════════════════════╝");
+            System.out.println("+======================================================================+");
         }
     }
 
     /**
-     * Exibe um resumo geral com os melhores preços por produto.
+     * Exibe um resumo geral com os melhores precos por produto.
      */
     private void listarResumoGeral() {
         List<String> produtos = historicoRepository.listarProdutosUnicos();
 
-        System.out.println("\n╔═══════════════════════════════════════════════════════════════════════╗");
-        System.out.println("║                        RESUMO GERAL DE PREÇOS                         ║");
-        System.out.println("╠═══════════════════════════════════════════════════════════════════════╣");
-        System.out.println("║  Melhores preços por produto (último registro de cada loja)          ║");
-        System.out.println("╠═══════════════════════════════════════════════════════════════════════╣");
+        System.out.println("\n+======================================================================+");
+        System.out.println("|                        RESUMO GERAL DE PRECOS                        |");
+        System.out.println("+======================================================================+");
+        System.out.println("|  Melhores precos por produto (ultimo registro de cada loja)         |");
+        System.out.println("+======================================================================+");
 
         for (String produto : produtos) {
             // Busca o registro mais recente para cada loja deste produto
@@ -392,9 +397,9 @@ public class MenuService {
 
             if (registrosProduto.isEmpty()) continue;
 
-            System.out.println("║                                                                       ║");
-            System.out.printf("║  PRODUTO: %s%n", produto);
-            System.out.println("║  ────────────────────────────────────────────────────────────────────║");
+            System.out.println("|                                                                      |");
+            System.out.printf("|  PRODUTO: %s%n", produto);
+            System.out.println("|  -----------------------------------------------------------------------|");
 
             // Agrupa por loja e pega o mais recente de cada
             Map<String, List<HistoricoPreco>> porLoja = registrosProduto.stream()
@@ -406,32 +411,143 @@ public class MenuService {
                         .orElse(null);
 
                 if (maisRecente != null) {
-                    System.out.printf("║    %-15s │ R$ %8.2f │ %s%n",
+                    System.out.printf("|    %-15s | R$ %8.2f | %s%n",
                             maisRecente.getLoja(),
                             maisRecente.getPreco(),
                             maisRecente.getDiasDesdeRegistro() + " dias");
                 }
             }
 
-            // Estatísticas do produto
+            // Estatisticas do produto
             HistoricoRepository.EstatisticaPreco est = historicoRepository.calcularEstatisticas(produto);
             if (est != null) {
-                System.out.printf("║  ────────────────────────────────────────────────────────────────────║%n");
-                System.out.printf("║  Menor: R$ %.2f  │  Maior: R$ %.2f  │  Média: R$ %.2f%n",
+                System.out.printf("|  -----------------------------------------------------------------------|%n");
+                System.out.printf("|  Menor: R$ %.2f  |  Maior: R$ %.2f  |  Media: R$ %.2f%n",
                         est.getMenorPreco(), est.getMaiorPreco(), est.getMediaPreco());
             }
         }
 
-        System.out.println("║                                                                       ║");
-        System.out.println("╚═══════════════════════════════════════════════════════════════════════╝");
+        System.out.println("|                                                                      |");
+        System.out.println("+======================================================================+");
     }
 
     /**
-     * Opção 0: Sair do sistema.
+     * Opcao 5: Remover um produto cadastrado.
+     */
+    private void removerProduto() {
+        System.out.println("\n+==============================================================+");
+        System.out.println("|                    REMOVER PRODUTO                            |");
+        System.out.println("+==============================================================+");
+
+        List<Produto> produtos = produtoRepository.listarTodos();
+
+        // Validacao: lista vazia
+        if (produtos.isEmpty()) {
+            System.out.println("|                                                              |");
+            System.out.println("|  Nenhum produto cadastrado.                                  |");
+            System.out.println("|  Cadastre um produto primeiro (opcao 1 do menu).             |");
+            System.out.println("+==============================================================+");
+            return;
+        }
+
+        // Listar todos os produtos com indice
+        System.out.println("|                                                              |");
+        System.out.println("|  PRODUTOS CADASTRADOS:                                       |");
+        System.out.println("|  ------------------------------------------------------------|");
+
+        for (int i = 0; i < produtos.size(); i++) {
+            System.out.printf("|  [%d] %-53s |%n", (i + 1), produtos.get(i).getNome());
+        }
+
+        System.out.println("|                                                              |");
+        System.out.println("+==============================================================+");
+        System.out.println();
+        System.out.print("Digite o numero do produto para remover (0 para cancelar): ");
+
+        int escolha = lerOpcao();
+
+        // Validacao: Cancelar
+        if (escolha == 0) {
+            System.out.println("Operacao cancelada pelo usuario.");
+            return;
+        }
+
+        // Validacao: indice invalido (negativo ou maior que o tamanho)
+        if (escolha < 1 || escolha > produtos.size()) {
+            System.out.println();
+            System.out.println("+==============================================================+");
+            System.out.println("|  ERRO: Indice invalido!                                       |");
+            System.out.println("|  Digite um numero entre 1 e " + produtos.size() + ".                              |");
+            System.out.println("+==============================================================+");
+            return;
+        }
+
+        // Obter o produto selecionado (indice e escolha - 1)
+        Produto produtoSelecionado = produtos.get(escolha - 1);
+        String nomeProduto = produtoSelecionado.getNome();
+
+        // Confirmar remocao
+        System.out.println();
+        System.out.println("+==============================================================+");
+        System.out.println("|  CONFIRMACAO DE REMOCAO                                      |");
+        System.out.println("+==============================================================+");
+        System.out.printf("|  Produto: %-49s |%n", nomeProduto);
+        System.out.println("|                                                              |");
+        System.out.println("|  Deseja remover tambem o historico deste produto?            |");
+        System.out.println("|  1 - Sim (remover historico completo)                        |");
+        System.out.println("|  2 - Nao (manter historico apenas)                          |");
+        System.out.println("+==============================================================+");
+        System.out.println();
+        System.out.print("Escolha uma opcao (1-2): ");
+
+        int opcaoHistorico = lerOpcao();
+
+        // Validacao da opcao de historico
+        if (opcaoHistorico != 1 && opcaoHistorico != 2) {
+            System.out.println();
+            System.out.println("+==============================================================+");
+            System.out.println("|  ERRO: Opcao invalida!                                       |");
+            System.out.println("|  Digite 1 para SIM ou 2 para NAO.                           |");
+            System.out.println("+==============================================================+");
+            return;
+        }
+
+        // Remover o produto
+        boolean removido = produtoRepository.remover(produtoSelecionado.getId());
+
+        if (removido) {
+            System.out.println();
+            System.out.println("+==============================================================+");
+            System.out.println("|  [OK] PRODUTO REMOVIDO COM SUCESSO                           |");
+            System.out.println("+==============================================================+");
+            System.out.printf("|  Produto removido: %-45s |%n", nomeProduto);
+
+            // Remover historico se solicitado
+            if (opcaoHistorico == 1) {
+                int quantidadeRemovida = historicoRepository.removerPorProduto(nomeProduto);
+                System.out.printf("|  Registros de historico removidos: %-27d |%n", quantidadeRemovida);
+            } else {
+                System.out.println("|  Historico preservado.                                       |");
+            }
+
+            System.out.println("|                                                              |");
+            System.out.println("|  Arquivos JSON atualizados automaticamente.                   |");
+            System.out.println("+==============================================================+");
+        } else {
+            System.out.println();
+            System.out.println("+==============================================================+");
+            System.out.println("|  [ERRO] AO REMOVER PRODUTO                                   |");
+            System.out.println("|  O produto nao foi encontrado no repositorio.                 |");
+            System.out.println("+==============================================================+");
+        }
+    }
+
+    /**
+     * Opcao 0: Sair do sistema.
      */
     private void sair() {
         System.out.println("\nObrigado por usar o sistema!");
-        System.out.println("Até logo!");
+        System.out.println("Ate logo!");
         executando = false;
     }
 }

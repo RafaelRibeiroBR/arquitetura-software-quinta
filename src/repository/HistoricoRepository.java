@@ -381,6 +381,37 @@ public class HistoricoRepository {
     }
 
     /**
+     * Remove todos os registros de histórico de um produto específico.
+     * @param nomeProduto Nome do produto cujos registros serão removidos
+     * @return Quantidade de registros removidos
+     */
+    public int removerPorProduto(String nomeProduto) {
+        System.out.println("\n  [REMOVER-HISTORICO] ===============================================");
+        System.out.println("  [REMOVER-HISTORICO] REMOVENDO HISTÓRICO DO PRODUTO: " + nomeProduto);
+
+        int tamanhoAntes = historico.size();
+
+        // Remove todos os registros que correspondem ao produto (case-insensitive)
+        boolean algumRemovido = historico.removeIf(h ->
+            h.getNomeProduto().equalsIgnoreCase(nomeProduto)
+        );
+
+        int tamanhoDepois = historico.size();
+        int quantidadeRemovida = tamanhoAntes - tamanhoDepois;
+
+        if (quantidadeRemovida > 0) {
+            salvarHistorico();
+            System.out.println("  [REMOVER-HISTORICO] SUCESSO! " + quantidadeRemovida + " registro(s) removido(s).");
+            System.out.println("  [REMOVER-HISTORICO] Tamanho: " + tamanhoAntes + " -> " + tamanhoDepois);
+        } else {
+            System.out.println("  [REMOVER-HISTORICO] Nenhum registro encontrado para: " + nomeProduto);
+        }
+
+        System.out.println("  [REMOVER-HISTORICO] ===============================================\n");
+        return quantidadeRemovida;
+    }
+
+    /**
      * Lista todos os registros de histórico.
      * @return Lista com todos os registros
      */

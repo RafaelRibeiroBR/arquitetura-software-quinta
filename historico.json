@@ -130,5 +130,53 @@
     "preco": 19999.9,
     "loja": "Kabum",
     "data": "2026-05-21T18:51:12"
+  },
+  {
+    "nomeProduto": "PlayStation 5",
+    "preco": 3998.07,
+    "loja": "Amazon",
+    "data": "2026-05-21T18:54:02"
+  },
+  {
+    "nomeProduto": "PlayStation 5",
+    "preco": 729.9,
+    "loja": "Kabum",
+    "data": "2026-05-21T18:54:02"
+  },
+  {
+    "nomeProduto": "iPhone 15",
+    "preco": 4110.49,
+    "loja": "Amazon",
+    "data": "2026-05-21T18:54:12"
+  },
+  {
+    "nomeProduto": "iPhone 15",
+    "preco": 535.49,
+    "loja": "Kabum",
+    "data": "2026-05-21T18:54:12"
+  },
+  {
+    "nomeProduto": "Alexa",
+    "preco": 599.0,
+    "loja": "Amazon",
+    "data": "2026-05-21T18:54:22"
+  },
+  {
+    "nomeProduto": "Alexa",
+    "preco": 19999.9,
+    "loja": "Kabum",
+    "data": "2026-05-21T18:54:22"
+  },
+  {
+    "nomeProduto": "RTX 4060",
+    "preco": 3399.0,
+    "loja": "Amazon",
+    "data": "2026-05-21T18:54:31"
+  },
+  {
+    "nomeProduto": "RTX 4060",
+    "preco": 671.08,
+    "loja": "Kabum",
+    "data": "2026-05-21T18:54:31"
   }
 ]

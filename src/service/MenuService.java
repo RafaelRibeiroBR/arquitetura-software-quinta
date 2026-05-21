@@ -213,8 +213,11 @@ public class MenuService {
         System.out.println("|                    HISTORICO COMPLETO                  |");
         System.out.println("+--------------------------------------------------------+");
 
-        // DEBUG: Log detalhado de carregamento do histórico
-        System.out.println("  [DEBUG-MENU] Carregando histórico via repository...");
+        // IMPORTANTE: Recarrega o histórico do arquivo para garantir dados atualizados
+        // Isso corrige o bug onde o repositório interno do CrawlerService não era visível
+        System.out.println("  [DEBUG-MENU] Recarregando histórico do arquivo...");
+        historicoRepository.carregarHistorico();
+
         List<HistoricoPreco> historico = historicoRepository.listarTodos();
         System.out.println("  [DEBUG-MENU] Registros retornados pelo repository: " + historico.size());
 
@@ -278,7 +281,11 @@ public class MenuService {
         System.out.println("| PRODUTO          | LOJA             | PRECO     | DATA/HORA        |");
         System.out.println("+------------------+------------------+------------+-----------------+");
 
-        for (HistoricoPreco h : historico) {
+        int total = historico.size();
+        System.out.println("  [DEBUG-TOTAL] Registros a exibir: " + total);
+
+        for (int i = 0; i < total; i++) {
+            HistoricoPreco h = historico.get(i);
             String produto = h.getNomeProduto();
             if (produto.length() > 16) produto = produto.substring(0, 13) + "...";
             String loja = h.getLoja();
@@ -286,9 +293,14 @@ public class MenuService {
 
             System.out.printf("| %-16s | %-16s | R$ %7.2f | %-16s |%n",
                     produto, loja, h.getPreco(), h.getDataResumida());
+
+            if (i == total - 1) {
+                System.out.println("  [DEBUG-ULTIMO] Último item processado: [" + (i + 1) + "/" + total + "] " + h.getNomeProduto() + " @ " + h.getLoja());
+            }
         }
 
         System.out.println("+------------------+------------------+------------+-----------------+");
+        System.out.println("  [DEBUG-FINAL] Total exibido: " + total);
     }
 
     /**
@@ -305,11 +317,15 @@ public class MenuService {
         System.out.println("|                   HISTORICO POR PRODUTO                          |");
         System.out.println("+------------------------------------------------------------------+");
 
+        int indiceProduto = 0;
+        int totalProdutos = porProduto.size();
+
         for (Map.Entry<String, List<HistoricoPreco>> entry : porProduto.entrySet()) {
+            indiceProduto++;
             String produto = entry.getKey();
             List<HistoricoPreco> registros = entry.getValue();
 
-            System.out.println("  [DEBUG] Processando produto: " + produto + " | Registros: " + registros.size());
+            System.out.println("  [DEBUG] Processando produto [" + indiceProduto + "/" + totalProdutos + "]: " + produto + " | Registros: " + registros.size());
 
             // Estatisticas
             HistoricoRepository.EstatisticaPreco estatisticas = historicoRepository.calcularEstatisticas(registros);
@@ -329,20 +345,30 @@ public class MenuService {
             System.out.println("|  EVOLUCAO DE PRECOS (do mais antigo para o mais recente)           |");
             System.out.println("+======================================================================+");
 
-            // Ordena por data e mostra evolucao
-            registros.stream()
+            // Ordena por data e mostra evolucao - USANDO ÍNDICE EXPLÍCITO
+            List<HistoricoPreco> ordenados = registros.stream()
                     .sorted(Comparator.comparing(HistoricoPreco::getData))
-                    .forEach(h -> {
-                        String jours = "";
-                        if (h.getDiasDesdeRegistro() > 0) {
-                            jours = " (" + h.getDiasDesdeRegistro() + " dias atras)";
-                        }
-                        System.out.printf("|  %-15s | R$ %8.2f | %s%s%n",
-                                h.getLoja(), h.getPreco(), h.getDataResumida(), jours);
-                    });
+                    .collect(Collectors.toList());
+
+            int totalRegistros = ordenados.size();
+            for (int i = 0; i < totalRegistros; i++) {
+                HistoricoPreco h = ordenados.get(i);
+                String jours = "";
+                if (h.getDiasDesdeRegistro() > 0) {
+                    jours = " (" + h.getDiasDesdeRegistro() + " dias atras)";
+                }
+                System.out.printf("|  %-15s | R$ %8.2f | %s%s%n",
+                        h.getLoja(), h.getPreco(), h.getDataResumida(), jours);
+
+                if (i == totalRegistros - 1) {
+                    System.out.println("  [DEBUG-ULTIMO] Último registro do produto " + produto + ": [" + (i + 1) + "/" + totalRegistros + "] " + h.getLoja());
+                }
+            }
 
             System.out.println("+======================================================================+");
         }
+
+        System.out.println("\n  [DEBUG-FINAL] Total de produtos processados: " + indiceProduto + "/" + totalProdutos);
     }
 
     /**
@@ -359,11 +385,15 @@ public class MenuService {
         System.out.println("|                      HISTORICO POR LOJA                           |");
         System.out.println("+------------------------------------------------------------------+");
 
+        int indiceLoja = 0;
+        int totalLojas = porLoja.size();
+
         for (Map.Entry<String, List<HistoricoPreco>> entry : porLoja.entrySet()) {
+            indiceLoja++;
             String loja = entry.getKey();
             List<HistoricoPreco> registros = entry.getValue();
 
-            System.out.println("  [DEBUG] Processando loja: " + loja + " | Registros: " + registros.size());
+            System.out.println("  [DEBUG] Processando loja [" + indiceLoja + "/" + totalLojas + "]: " + loja + " | Registros: " + registros.size());
 
             HistoricoRepository.EstatisticaPreco estatisticas = historicoRepository.calcularEstatisticas(registros);
 
@@ -388,17 +418,26 @@ public class MenuService {
             System.out.println("|  ULTIMOS REGISTROS                                                 |");
             System.out.println("+======================================================================+");
 
-            // Mostra ultimos registros (maximo 10)
-            registros.stream()
+            // Mostra ultimos registros (maximo 10) - USANDO ÍNDICE EXPLÍCITO
+            List<HistoricoPreco> ordenados = registros.stream()
                     .sorted(Comparator.comparing(HistoricoPreco::getData).reversed())
-                    .limit(10)
-                    .forEach(h -> {
-                        System.out.printf("|  %-20s | R$ %8.2f | %s%n",
-                                h.getNomeProduto(), h.getPreco(), h.getDataResumida());
-                    });
+                    .collect(Collectors.toList());
+
+            int limite = Math.min(10, ordenados.size());
+            for (int i = 0; i < limite; i++) {
+                HistoricoPreco h = ordenados.get(i);
+                System.out.printf("|  %-20s | R$ %8.2f | %s%n",
+                        h.getNomeProduto(), h.getPreco(), h.getDataResumida());
+
+                if (i == limite - 1) {
+                    System.out.println("  [DEBUG-ULTIMO] Último registro exibido da loja " + loja + ": [" + (i + 1) + "/" + limite + "] " + h.getNomeProduto());
+                }
+            }
 
             System.out.println("+======================================================================+");
         }
+
+        System.out.println("\n  [DEBUG-FINAL] Total de lojas processadas: " + indiceLoja + "/" + totalLojas);
     }
 
     /**
@@ -417,12 +456,18 @@ public class MenuService {
         System.out.println("|  Melhores precos por produto (ultimo registro de cada loja)         |");
         System.out.println("+======================================================================+");
 
-        for (String produto : produtos) {
-            System.out.println("  [DEBUG] Processando produto no resumo: " + produto);
+        int totalProdutos = produtos.size();
+        for (int i = 0; i < totalProdutos; i++) {
+            String produto = produtos.get(i);
+            System.out.println("  [DEBUG] Processando produto [" + (i + 1) + "/" + totalProdutos + "]: " + produto);
+
             // Busca o registro mais recente para cada loja deste produto
             List<HistoricoPreco> registrosProduto = historicoRepository.listarPorProduto(produto);
 
-            if (registrosProduto.isEmpty()) continue;
+            if (registrosProduto.isEmpty()) {
+                System.out.println("  [DEBUG] Nenhum registro encontrado para: " + produto);
+                continue;
+            }
 
             System.out.println("|                                                                      |");
             System.out.printf("|  PRODUTO: %s%n", produto);
@@ -432,7 +477,11 @@ public class MenuService {
             Map<String, List<HistoricoPreco>> porLoja = registrosProduto.stream()
                     .collect(Collectors.groupingBy(HistoricoPreco::getLoja));
 
+            int totalLojas = porLoja.size();
+            int indiceLoja = 0;
+
             for (Map.Entry<String, List<HistoricoPreco>> entry : porLoja.entrySet()) {
+                indiceLoja++;
                 HistoricoPreco maisRecente = entry.getValue().stream()
                         .max(Comparator.comparing(HistoricoPreco::getData))
                         .orElse(null);
@@ -442,6 +491,10 @@ public class MenuService {
                             maisRecente.getLoja(),
                             maisRecente.getPreco(),
                             maisRecente.getDiasDesdeRegistro() + " dias");
+
+                    if (indiceLoja == totalLojas) {
+                        System.out.println("  [DEBUG-ULTIMO] Última loja do produto " + produto + ": " + maisRecente.getLoja());
+                    }
                 }
             }
 
@@ -456,6 +509,7 @@ public class MenuService {
 
         System.out.println("|                                                                      |");
         System.out.println("+======================================================================+");
+        System.out.println("\n  [DEBUG-FINAL] Total de produtos processados: " + totalProdutos);
     }
 
     /**

@@ -213,7 +213,10 @@ public class MenuService {
         System.out.println("|                    HISTORICO COMPLETO                  |");
         System.out.println("+--------------------------------------------------------+");
 
+        // DEBUG: Log detalhado de carregamento do histórico
+        System.out.println("  [DEBUG-MENU] Carregando histórico via repository...");
         List<HistoricoPreco> historico = historicoRepository.listarTodos();
+        System.out.println("  [DEBUG-MENU] Registros retornados pelo repository: " + historico.size());
 
         if (historico.isEmpty()) {
             System.out.println("|                                                        |");
@@ -223,9 +226,16 @@ public class MenuService {
             return;
         }
 
+        // DEBUG: Log de produtos únicos
+        List<String> produtosUnicos = historicoRepository.listarProdutosUnicos();
+        List<String> lojasUnicas = historicoRepository.listarLojasUnicas();
+        System.out.println("  [DEBUG-MENU] Produtos únicos encontrados: " + produtosUnicos.size());
+        System.out.println("  [DEBUG-MENU] Lojas únicas encontradas: " + lojasUnicas.size());
+        System.out.println("  [DEBUG-MENU] Lista de produtos: " + String.join(", ", produtosUnicos));
+
         System.out.println("|  Total de registros: " + historico.size());
-        System.out.println("|  Produtos unicos: " + historicoRepository.listarProdutosUnicos().size());
-        System.out.println("|  Lojas unicas: " + historicoRepository.listarLojasUnicas().size());
+        System.out.println("|  Produtos unicos: " + produtosUnicos.size());
+        System.out.println("|  Lojas unicas: " + lojasUnicas.size());
         System.out.println("+--------------------------------------------------------+");
         System.out.println("|  Como deseja visualizar o historico?                    |");
         System.out.println("|  1 - Todos os registros (completo)                      |");
@@ -287,6 +297,10 @@ public class MenuService {
     private void listarPorProdutoAgrupado() {
         Map<String, List<HistoricoPreco>> porProduto = historicoRepository.agruparPorProduto();
 
+        System.out.println("\n  [DEBUG] ========== LISTAR POR PRODUTO ==========");
+        System.out.println("  [DEBUG] Grupos de produtos criados: " + porProduto.size());
+        System.out.println("  [DEBUG] Produtos no agrupamento: " + String.join(", ", porProduto.keySet()));
+
         System.out.println("\n+------------------------------------------------------------------+");
         System.out.println("|                   HISTORICO POR PRODUTO                          |");
         System.out.println("+------------------------------------------------------------------+");
@@ -294,6 +308,8 @@ public class MenuService {
         for (Map.Entry<String, List<HistoricoPreco>> entry : porProduto.entrySet()) {
             String produto = entry.getKey();
             List<HistoricoPreco> registros = entry.getValue();
+
+            System.out.println("  [DEBUG] Processando produto: " + produto + " | Registros: " + registros.size());
 
             // Estatisticas
             HistoricoRepository.EstatisticaPreco estatisticas = historicoRepository.calcularEstatisticas(registros);
@@ -335,6 +351,10 @@ public class MenuService {
     private void listarPorLojaAgrupado() {
         Map<String, List<HistoricoPreco>> porLoja = historicoRepository.agruparPorLoja();
 
+        System.out.println("\n  [DEBUG] ========== LISTAR POR LOJA ==========");
+        System.out.println("  [DEBUG] Grupos de lojas criados: " + porLoja.size());
+        System.out.println("  [DEBUG] Lojas no agrupamento: " + String.join(", ", porLoja.keySet()));
+
         System.out.println("\n+------------------------------------------------------------------+");
         System.out.println("|                      HISTORICO POR LOJA                           |");
         System.out.println("+------------------------------------------------------------------+");
@@ -342,6 +362,8 @@ public class MenuService {
         for (Map.Entry<String, List<HistoricoPreco>> entry : porLoja.entrySet()) {
             String loja = entry.getKey();
             List<HistoricoPreco> registros = entry.getValue();
+
+            System.out.println("  [DEBUG] Processando loja: " + loja + " | Registros: " + registros.size());
 
             HistoricoRepository.EstatisticaPreco estatisticas = historicoRepository.calcularEstatisticas(registros);
 
@@ -385,6 +407,10 @@ public class MenuService {
     private void listarResumoGeral() {
         List<String> produtos = historicoRepository.listarProdutosUnicos();
 
+        System.out.println("\n  [DEBUG] ========== RESUMO GERAL ==========");
+        System.out.println("  [DEBUG] Produtos únicos para exibir: " + produtos.size());
+        System.out.println("  [DEBUG] Lista de produtos: " + String.join(", ", produtos));
+
         System.out.println("\n+======================================================================+");
         System.out.println("|                        RESUMO GERAL DE PRECOS                        |");
         System.out.println("+======================================================================+");
@@ -392,6 +418,7 @@ public class MenuService {
         System.out.println("+======================================================================+");
 
         for (String produto : produtos) {
+            System.out.println("  [DEBUG] Processando produto no resumo: " + produto);
             // Busca o registro mais recente para cada loja deste produto
             List<HistoricoPreco> registrosProduto = historicoRepository.listarPorProduto(produto);
 

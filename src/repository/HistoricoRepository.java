@@ -241,10 +241,10 @@ public class HistoricoRepository {
 
     /**
      * Adiciona um novo registro de histórico.
-     * Implementa prevenção de duplicatas consecutivas (mesmo produto, loja E preço).
-     * NÃO ignora registros de lojas diferentes ou preços diferentes.
+     * NÃO implementa prevenção de duplicatas - cada chamada adiciona o registro.
+     * A verificação de duplicatas deve ser feita pelo chamador se necessário.
      * @param registro Registro a ser adicionado
-     * @return true se o registro foi adicionado, false se foi ignorado por ser duplicado
+     * @return true se o registro foi adicionado, false se foi ignorado por ser null
      */
     public boolean adicionar(HistoricoPreco registro) {
         System.out.println("\n  [REPO] ===============================================");
@@ -262,25 +262,7 @@ public class HistoricoRepository {
         int tamanhoAntes = historico.size();
         System.out.println("  [REPO] Histórico atual tem " + tamanhoAntes + " registro(s).");
 
-        // Verifica duplicata consecutiva APENAS se há registros
-        if (!historico.isEmpty()) {
-            HistoricoPreco ultimo = historico.get(historico.size() - 1);
-            System.out.println("  [REPO] Último registro no histórico:");
-            System.out.println("  [REPO]   Produto: " + ultimo.getNomeProduto());
-            System.out.println("  [REPO]   Preço:   R$ " + ultimo.getPreco());
-            System.out.println("  [REPO]   Loja:    " + ultimo.getLoja());
-
-            if (ultimo.éDuplicadoConsecutivo(registro)) {
-                System.out.println("  [REPO] IGNORADO: Registro duplicado consecutivos (produto + loja + preço iguais)");
-                return false;
-            } else {
-                System.out.println("  [REPO] OK: Registro diferente do anterior, será salvo.");
-            }
-        } else {
-            System.out.println("  [REPO] Histórico vazio, primeiro registro será salvo.");
-        }
-
-        // Adiciona o registro
+        // Adiciona o registro SEM verificação de duplicata
         historico.add(registro);
         int tamanhoDepois = historico.size();
         System.out.println("  [REPO] Registro adicionado. Tamanho: " + tamanhoAntes + " -> " + tamanhoDepois);
@@ -288,6 +270,7 @@ public class HistoricoRepository {
         // Salva no arquivo
         salvarHistorico();
 
+        System.out.println("  [REPO] Total de registros no histórico após adição: " + tamanhoDepois);
         System.out.println("  [REPO] >>> Histórico adicionado para: " + registro.getNomeProduto() + " @ " + registro.getLoja());
         System.out.println("  [REPO] ===============================================\n");
         return true;
@@ -308,7 +291,8 @@ public class HistoricoRepository {
     /**
      * Adiciona múltiplos registros de uma vez (usado quando crawler encontra vários preços).
      * Salva TODOS os registros de uma vez no arquivo (batch save).
-     * Apenas adiciona registros que não sejam duplicados consecutivos.
+     * Apenas adiciona registros que não sejam duplicados dentro do próprio batch.
+     * Não verifica contra o histórico global - cada batch é independente.
      * @param registros Lista de registros a serem adicionados
      * @return Quantidade de registros efetivamente adicionados
      */
@@ -322,7 +306,9 @@ public class HistoricoRepository {
             return 0;
         }
 
-        System.out.println("  [BATCH] Registros recebidos:");
+        int tamanhoHistoricoAntes = historico.size();
+        System.out.println("  [BATCH] Histórico antes do batch: " + tamanhoHistoricoAntes + " registro(s)");
+        System.out.println("  [BATCH] Registros recebidos para processar:");
         for (HistoricoPreco r : registros) {
             System.out.println("  [BATCH]   - " + r.getNomeProduto() + " @ " + r.getLoja() + " = R$ " + r.getPreco());
         }
@@ -330,25 +316,28 @@ public class HistoricoRepository {
         int adicionados = 0;
         int ignorados = 0;
 
+        // Lista temporária para rastrear apenas os registros já adicionados neste batch
+        // Assim evitamos duplicatas dentro do mesmo batch, mas NÃO contra o histórico global
+        List<HistoricoPreco> jaAdicionadosNoBatch = new ArrayList<>();
+
         for (HistoricoPreco registro : registros) {
             if (registro == null) {
                 ignorados++;
                 continue;
             }
 
-            int tamanhoAntes = historico.size();
+            // Verifica duplicata apenas dentro do batch atual, não contra o histórico global
+            boolean duplicadoNoBatch = jaAdicionadosNoBatch.stream()
+                    .anyMatch(h -> h.éDuplicadoConsecutivo(registro));
 
-            // Verifica duplicata
-            if (!historico.isEmpty()) {
-                HistoricoPreco ultimo = historico.get(historico.size() - 1);
-                if (ultimo.éDuplicadoConsecutivo(registro)) {
-                    System.out.println("  [BATCH] IGNORADO (duplicado): " + registro.getNomeProduto() + " @ " + registro.getLoja());
-                    ignorados++;
-                    continue;
-                }
+            if (duplicadoNoBatch) {
+                System.out.println("  [BATCH] IGNORADO (duplicado no batch): " + registro.getNomeProduto() + " @ " + registro.getLoja());
+                ignorados++;
+                continue;
             }
 
             historico.add(registro);
+            jaAdicionadosNoBatch.add(registro);
             adicionados++;
             System.out.println("  [BATCH] ADICIONADO: " + registro.getNomeProduto() + " @ " + registro.getLoja() + " = R$ " + registro.getPreco());
         }
@@ -357,8 +346,9 @@ public class HistoricoRepository {
         System.out.println("  [BATCH] Salvando " + adicionados + " registro(s) no arquivo...");
         salvarHistorico();
 
+        int tamanhoHistoricoDepois = historico.size();
         System.out.println("  [BATCH] Resultado: " + adicionados + " adicionado(s), " + ignorados + " ignorado(s)");
-        System.out.println("  [BATCH] Total no histórico agora: " + historico.size() + " registro(s)");
+        System.out.println("  [BATCH] Histórico antes: " + tamanhoHistoricoAntes + " | depois: " + tamanhoHistoricoDepois);
         System.out.println("  [BATCH] ===============================================\n");
 
         return adicionados;
